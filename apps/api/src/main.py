@@ -5,7 +5,7 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
-app = FastAPI(title="ReviewAgg API", version="0.1.0")
+app = FastAPI(title="Evident API", version="0.1.0")
 
 app.include_router(health.router)
 app.include_router(products.router)
@@ -14,6 +14,6 @@ app.include_router(crawl.router)
 
 @app.on_event("startup")
 async def startup_event():
-    logging.info("Starting up ReviewAgg API...")
+    logging.info("Starting up Evident API...")
 
 handler = Mangum(app)

@@ -1,6 +1,6 @@
-# ReviewAgg Platform
+# Evident Platform
 
-ReviewAgg is a service-oriented cross-platform review aggregator. It crawls product reviews and ratings across multiple social and e-commerce platforms (Amazon, Reddit, YouTube, TikTok, Instagram), normalizes them via a Medallion Architecture data pipeline, computes AI-driven product sentiment scores, and serves them via a scalable frontend widget and dashboard.
+Evident is a service-oriented cross-platform review aggregator. It crawls product reviews and ratings across multiple social and e-commerce platforms (Amazon, Reddit, YouTube, TikTok, Instagram), normalizes them via a Medallion Architecture data pipeline, computes AI-driven product sentiment scores, and serves them via a scalable frontend widget and dashboard.
 
 ## 🏗️ Monorepo Architecture
 
