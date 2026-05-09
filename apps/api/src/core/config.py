@@ -4,8 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     DATABASE_URL: str
     KV_URL: str
-    TYPESENSE_API_KEY: str
-    TYPESENSE_HOST: str
+    TYPESENSE_API_KEY: str = ""
+    TYPESENSE_HOST: str = ""
     TYPESENSE_PORT: int = 443
     TYPESENSE_PROTOCOL: str = "https"
     
