@@ -18,7 +18,8 @@ if config.config_file_name is not None:
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# Add the project root to sys.path so we can import packages and apps
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
 from packages.shared.models import Base
 from apps.api.src.core.config import settings

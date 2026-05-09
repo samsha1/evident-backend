@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "ReviewAgg - Cross-Platform Review Aggregator"
 authors = ["Samrat"]
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [
+    {include = "apps"},
+    {include = "packages"},
+    {include = "pipelines"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -23,3 +27,25 @@ mangum = "^0.21.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.vercel]
+entrypoint = "apps.api.src.main:app"
+
+[project]
+name = "evident-backend"
+version = "0.1.0"
+description = "Evident - Cross-Platform Review Aggregator"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "alembic",
+    "pydantic",
+    "pydantic-settings",
+    "redis",
+    "rapidfuzz",
+    "celery",
+    "mangum"
+]
