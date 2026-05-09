@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: evident_postgres
+    environment:
+      POSTGRES_USER: evident
+      POSTGRES_PASSWORD: evident_password
+      POSTGRES_DB: evident_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U evident -d evident_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: evident_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  typesense:
+    image: typesense/typesense:0.25.2
+    container_name: evident_typesense
+    environment:
+      TYPESENSE_DATA_DIR: /data
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-typesense_dev_key}
+    ports:
+      - "8108:8108"
+    volumes:
+      - typesense_data:/data
+
+  prefect-server:
+    image: prefecthq/prefect:2-python3.12
+    container_name: evident_prefect
+    command: prefect server start --host 0.0.0.0
+    ports:
+      - "4200:4200"
+    environment:
+      PREFECT_API_URL: http://127.0.0.1:4200/api
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evident_api
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://evident:evident_password@postgres:5432/evident_db
+      - REDIS_URL=redis://redis:6379/0
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-typesense_dev_key}
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  typesense_data:
