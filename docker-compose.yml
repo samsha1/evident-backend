@@ -1,9 +1,56 @@
-version: "3.8"
-
 services:
+  # ── Reverse Proxy + TLS ──
+  caddy:
+    image: caddy:2-alpine
+    container_name: evident_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # ── FastAPI Application ──
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evident_api
+    restart: unless-stopped
+    command: >
+      uvicorn apps.api.src.main:app
+      --host 0.0.0.0 --port 8000
+      --reload
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://evident:evident_password@postgres:5432/evident_db
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - .:/app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── PostgreSQL ──
   postgres:
     image: postgres:15-alpine
     container_name: evident_postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: evident
       POSTGRES_PASSWORD: evident_password
@@ -18,9 +65,11 @@ services:
       timeout: 5s
       retries: 5
 
+  # ── Redis ──
   redis:
     image: redis:7-alpine
     container_name: evident_redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -31,47 +80,8 @@ services:
       timeout: 5s
       retries: 5
 
-  typesense:
-    image: typesense/typesense:0.25.2
-    container_name: evident_typesense
-    environment:
-      TYPESENSE_DATA_DIR: /data
-      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-typesense_dev_key}
-    ports:
-      - "8108:8108"
-    volumes:
-      - typesense_data:/data
-
-  prefect-server:
-    image: prefecthq/prefect:2-python3.12
-    container_name: evident_prefect
-    command: prefect server start --host 0.0.0.0
-    ports:
-      - "4200:4200"
-    environment:
-      PREFECT_API_URL: http://127.0.0.1:4200/api
-
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: evident_api
-    command: uvicorn apps.api.src.main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://evident:evident_password@postgres:5432/evident_db
-      - REDIS_URL=redis://redis:6379/0
-      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY:-typesense_dev_key}
-    volumes:
-      - .:/app
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
 volumes:
   postgres_data:
   redis_data:
-  typesense_data:
+  caddy_data:
+  caddy_config:

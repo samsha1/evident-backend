@@ -1,23 +1,43 @@
-from fastapi import FastAPI
-from apps.api.src.routers import health, products, reviews, crawl
-from mangum import Mangum
 import logging
+from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
 
-logging.basicConfig(level=logging.INFO)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Evident API", version="0.1.0")
+from apps.api.src.core.config import settings
+from apps.api.src.routers import health
 
-from fastapi import APIRouter
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("evident")
 
-api_router = APIRouter(prefix="/api")
-api_router.include_router(health.router)
-api_router.include_router(products.router)
-api_router.include_router(reviews.router)
-api_router.include_router(crawl.router)
 
-app.include_router(api_router)
-@app.on_event("startup")
-async def startup_event():
-    logging.info("Starting up Evident API...")
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan: startup and shutdown hooks."""
+    logger.info("Starting Evident API (env=%s)", settings.APP_ENV)
+    # TODO Phase 4: Load sentiment model here
+    yield
+    logger.info("Shutting down Evident API")
+    # TODO: Close Redis, DB engine on shutdown
 
-handler = Mangum(app)
+
+app = FastAPI(
+    title="Evident API",
+    version="0.1.0",
+    description="Cross-platform product review aggregator",
+    lifespan=lifespan,
+)
+
+# CORS — allow Chrome extension and local dev
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS.split(","),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ── Routers ──
+app.include_router(health.router, prefix="/api/v1", tags=["health"])
+# TODO Phase 5: Add auth, product routers

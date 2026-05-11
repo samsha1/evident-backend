@@ -1,0 +1,15 @@
+# Local development — HTTP only, no TLS
+# For production: replace :80 with v0.app.agenco.io (Caddy auto-provisions TLS)
+:80 {
+    reverse_proxy api:8000
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+
+    # Gzip
+    encode gzip
+}
