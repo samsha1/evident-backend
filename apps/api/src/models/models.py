@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, ForeignKey, Float, Integer, Text
+from sqlalchemy import String, DateTime, ForeignKey, Float, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -74,8 +74,7 @@ class Review(Base):
     product: Mapped["Product"] = relationship(back_populates="reviews")
 
     __table_args__ = (
-        # Deduplicate reviews across recrawls
-        {"info": {"unique_constraint": "uq_source_source_id"}},
+        UniqueConstraint("source", "source_id", name="uq_reviews_source_source_id"),
     )
 
 
