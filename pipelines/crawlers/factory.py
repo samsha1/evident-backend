@@ -1,5 +1,7 @@
 from pipelines.crawlers.core.crawler import PlatformCrawler
 from pipelines.crawlers.platforms.reddit import RedditJsonParser, RedditStrategy
+from pipelines.crawlers.platforms.youtube import YouTubeApiParser, YouTubeStrategy
+from pipelines.crawlers.platforms.amazon import AmazonHtmlParser, AmazonStrategy
 
 def build_crawlers(config: dict[str, str]) -> list[PlatformCrawler]:
     """Build list of crawlers based on configuration dictionary.
@@ -24,4 +26,19 @@ def build_crawlers(config: dict[str, str]) -> list[PlatformCrawler]:
         crawler = PlatformCrawler(strategy=strategy, parser=parser)
         crawlers.append(crawler)
         
+    # YouTube Crawler
+    youtube_api_key = config.get("YOUTUBE_API_KEY")
+    if youtube_api_key:
+        strategy = YouTubeStrategy(api_key=youtube_api_key)
+        parser = YouTubeApiParser()
+        crawler = PlatformCrawler(strategy=strategy, parser=parser)
+        crawlers.append(crawler)
+        
+    # Amazon Crawler (Scraping, no API key required for now)
+    strategy = AmazonStrategy()
+    parser = AmazonHtmlParser()
+    crawler = PlatformCrawler(strategy=strategy, parser=parser)
+    crawlers.append(crawler)
+        
     return crawlers
+
