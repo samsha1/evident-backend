@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from apps.api.src.core.config import settings
-from apps.api.src.routers import health
+from apps.api.src.routers import health, product, auth
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("evident")
@@ -16,10 +16,23 @@ logger = logging.getLogger("evident")
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown hooks."""
     logger.info("Starting Evident API (env=%s)", settings.APP_ENV)
-    # TODO Phase 4: Load sentiment model here
+    
+    # Load sentiment model at startup
+    from pipelines.sentiment.provider import LocalTransformerProvider, LlmApiProvider
+    from pipelines.sentiment.service import SentimentService
+    
+    primary = LocalTransformerProvider(model_name=settings.SENTIMENT_MODEL_NAME)
+    try:
+        # Load the model eagerly to avoid latency on first request
+        primary.load()
+    except Exception as e:
+        logger.error(f"Failed to load local sentiment model: {e}. Fallback will be used.")
+        
+    fallback = LlmApiProvider(api_key=settings.OPENAI_API_KEY)
+    app.state.sentiment_service = SentimentService(primary=primary, fallback=fallback)
+    
     yield
     logger.info("Shutting down Evident API")
-    # TODO: Close Redis, DB engine on shutdown
 
 
 app = FastAPI(
@@ -40,4 +53,6 @@ app.add_middleware(
 
 # ── Routers ──
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
-# TODO Phase 5: Add auth, product routers
+app.include_router(product.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
+

@@ -23,7 +23,7 @@ def build_crawlers(config: dict[str, str]) -> list[PlatformCrawler]:
             user_agent=reddit_user_agent
         )
         parser = RedditJsonParser()
-        crawler = PlatformCrawler(strategy=strategy, parser=parser)
+        crawler = PlatformCrawler(source="reddit", strategy=strategy, parser=parser)
         crawlers.append(crawler)
         
     # YouTube Crawler
@@ -31,13 +31,13 @@ def build_crawlers(config: dict[str, str]) -> list[PlatformCrawler]:
     if youtube_api_key:
         strategy = YouTubeStrategy(api_key=youtube_api_key)
         parser = YouTubeApiParser()
-        crawler = PlatformCrawler(strategy=strategy, parser=parser)
+        crawler = PlatformCrawler(source="youtube", strategy=strategy, parser=parser)
         crawlers.append(crawler)
         
     # Amazon Crawler (Scraping, no API key required for now)
     strategy = AmazonStrategy()
     parser = AmazonHtmlParser()
-    crawler = PlatformCrawler(strategy=strategy, parser=parser)
+    crawler = PlatformCrawler(source="amazon", strategy=strategy, parser=parser)
     crawlers.append(crawler)
         
     return crawlers

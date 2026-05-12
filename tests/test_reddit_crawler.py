@@ -39,7 +39,7 @@ async def test_crawler_with_mock_strategy():
     mock_strategy.fetch = AsyncMock(return_value='{"data": {"children": []}}')
     
     parser = RedditJsonParser()
-    crawler = PlatformCrawler(strategy=mock_strategy, parser=parser)
+    crawler = PlatformCrawler(source="reddit", strategy=mock_strategy, parser=parser)
     
     result = await crawler.run("test_query")
     

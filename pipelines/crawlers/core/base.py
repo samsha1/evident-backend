@@ -13,6 +13,7 @@ class RawReview(BaseModel):
 
 class CrawlerResult(BaseModel):
     """Result of a crawler execution."""
+    source: str | None = None
     reviews: list[RawReview]
     metadata: dict[str, str] = Field(default_factory=dict)
 
