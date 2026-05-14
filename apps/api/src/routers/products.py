@@ -10,8 +10,8 @@ router = APIRouter(prefix="/products", tags=["products"])
 @router.get("/{product_id}", response_model=ProductResponse)
 async def get_product(product_id: str, db: AsyncSession = Depends(get_db)):
     cached = await get_product_cache(product_id)
-    if cached:
-        return cached
+    if cached[1] in {"fresh", "stale"}:
+        return cached[0]
 
     # Stub response
     mock_product = {

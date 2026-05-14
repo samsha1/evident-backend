@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from apps.api.src.core.config import settings
-from apps.api.src.routers import health, product, auth
+from apps.api.src.routers import health, product, auth, products, reviews, crawl
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("evident")
@@ -55,4 +55,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(product.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(products.router, prefix="/api/v1")
+app.include_router(reviews.router, prefix="/api/v1")
+app.include_router(crawl.router, prefix="/api/v1")
 
