@@ -30,6 +30,7 @@ dependencies = [
     # Auth
     "python-jose[cryptography]>=3.3.0",
     "google-auth>=2.36.0",
+    "requests>=2.32.0",
 
     # Entity resolution
     "rapidfuzz>=3.10.0",
@@ -46,6 +47,7 @@ orchestration = [
     "prefect>=3.1.0",
 ]
 dev = [
+    "debugpy>=1.8.20",
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "httpx>=0.28.0",

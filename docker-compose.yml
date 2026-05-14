@@ -23,11 +23,10 @@ services:
     container_name: evident_api
     restart: unless-stopped
     command: >
-      uvicorn apps.api.src.main:app
-      --host 0.0.0.0 --port 8000
-      --reload
+      python -m debugpy --listen 0.0.0.0:5678 -m uvicorn apps.api.src.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
+      - "5678:5678"
     env_file: .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://evident:evident_password@postgres:5432/evident_db

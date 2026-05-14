@@ -69,3 +69,53 @@ class LocalTransformerProvider(SentimentProvider):
             return SentimentResult(score=-1.0, label="negative", confidence=score)
         else:
             return SentimentResult(score=0.0, label="neutral", confidence=score)
+
+
+class LlmApiProvider(SentimentProvider):
+    """Provider that uses an external LLM API (OpenAI) for sentiment analysis."""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.api_url = "https://api.openai.com/v1/chat/completions"
+        
+    async def analyze(self, text: str) -> SentimentResult:
+        """Analyze sentiment using OpenAI API."""
+        if not self.api_key:
+            logger.warning("OpenAI API key missing, returning neutral.")
+            return SentimentResult(score=0.0, label="neutral", confidence=0.0)
+            
+        import aiohttp
+        import json
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": "gpt-4o-mini",
+            "messages": [
+                {"role": "system", "content": "You are a sentiment analysis tool. Respond with a JSON object containing 'score' (between -1.0 and 1.0), 'label' (one of 'positive', 'negative', 'neutral'), and 'confidence' (between 0.0 and 1.0)."},
+                {"role": "user", "content": f"Analyze this text: {text}"}
+            ],
+            "response_format": {"type": "json_object"}
+        }
+        
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(self.api_url, headers=headers, json=payload) as resp:
+                    if resp.status != 200:
+                        logger.error(f"OpenAI API error: {resp.status}")
+                        return SentimentResult(score=0.0, label="neutral", confidence=0.0)
+                        
+                    data = await resp.json()
+                    content = data["choices"][0]["message"]["content"]
+                    result = json.loads(content)
+                    return SentimentResult(
+                        score=float(result.get("score", 0.0)),
+                        label=result.get("label", "neutral"),
+                        confidence=float(result.get("confidence", 0.0))
+                    )
+        except Exception as e:
+            logger.error(f"Error calling OpenAI API: {e}")
+            return SentimentResult(score=0.0, label="neutral", confidence=0.0)
