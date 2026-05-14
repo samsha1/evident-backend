@@ -1,15 +1,19 @@
+import asyncio
+import logging
+from datetime import UTC, datetime, timedelta
+
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
-from google.oauth2 import id_token
 from google.auth.transport import requests
+from google.oauth2 import id_token
 from jose import jwt
-from datetime import datetime, timedelta, timezone
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from apps.api.src.core.config import settings
 from apps.api.src.core.database import get_db
 from apps.api.src.models.models import User
-from apps.api.src.core.config import settings
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -25,15 +29,15 @@ class AuthResponse(BaseModel):
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire = datetime.now(UTC) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(hours=settings.JWT_EXPIRY_HOURS)
+        expire = datetime.now(UTC) + timedelta(hours=settings.JWT_EXPIRY_HOURS)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
     return encoded_jwt
 
 @router.post("/auth/google", response_model=AuthResponse, tags=["auth"])
-async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db)):
+async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db)):  # noqa: B008
     """Exchange Google ID token for a session JWT.
     
     Verifies the Google token, upserts the user in the database,
@@ -49,9 +53,27 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
                 "name": "Dummy User"
             }
         else:
-            idinfo = id_token.verify_oauth2_token(
-                auth_req.id_token, requests.Request(), settings.GOOGLE_CLIENT_ID
-            )
+            # Check if it's an ID token (JWT) or access token
+            if "." in auth_req.id_token:
+                idinfo = await asyncio.to_thread(
+                    id_token.verify_oauth2_token,
+                    auth_req.id_token,
+                    requests.Request(),
+                    settings.GOOGLE_CLIENT_ID,
+                )
+            else:
+                # Treat as access token
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(
+                        "https://oauth2.googleapis.com/tokeninfo",
+                        params={"access_token": auth_req.id_token},
+                    )
+                    if response.status_code != 200:
+                        raise HTTPException(
+                            status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Invalid or expired Google access token",
+                        )
+                    idinfo = response.json()
             
         google_id = idinfo["sub"]
         email = idinfo["email"]
@@ -72,7 +94,7 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
             db.add(user)
             logger.info(f"Created new user: {email}")
         else:
-            user.last_login_at = datetime.now(timezone.utc)
+            user.last_login_at = datetime.now(UTC)
             logger.info(f"User login: {email}")
             
         await db.commit()
@@ -88,10 +110,10 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Google token: {str(e)}",
-        )
+        ) from e
     except Exception as e:
         logger.error(f"Error in auth: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error",
-        )
+        ) from e
