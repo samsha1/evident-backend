@@ -25,6 +25,7 @@ class AuthRequest(BaseModel):
 class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    user: dict
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
@@ -53,8 +54,8 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
                 "name": "Dummy User"
             }
         else:
-            # Check if it's an ID token (JWT) or access token
-            if "." in auth_req.id_token:
+            # Check if it's an ID token (JWT) or access token. Google access tokens often start with "ya29." so we must check for exactly 2 dots (3 segments).
+            if auth_req.id_token.count(".") == 2:
                 idinfo = await asyncio.to_thread(
                     id_token.verify_oauth2_token,
                     auth_req.id_token,
@@ -65,8 +66,8 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
                 # Treat as access token
                 async with httpx.AsyncClient() as client:
                     response = await client.get(
-                        "https://oauth2.googleapis.com/tokeninfo",
-                        params={"access_token": auth_req.id_token},
+                        "https://www.googleapis.com/oauth2/v3/userinfo",
+                        headers={"Authorization": f"Bearer {auth_req.id_token}"},
                     )
                     if response.status_code != 200:
                         raise HTTPException(
@@ -95,6 +96,8 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
             logger.info(f"Created new user: {email}")
         else:
             user.last_login_at = datetime.now(UTC)
+            if name and not user.display_name:
+                user.display_name = name
             logger.info(f"User login: {email}")
             
         await db.commit()
@@ -103,7 +106,15 @@ async def auth_google(auth_req: AuthRequest, db: AsyncSession = Depends(get_db))
         # Issue JWT
         access_token = create_access_token(data={"sub": str(user.id), "email": user.email})
         
-        return AuthResponse(access_token=access_token)
+        return AuthResponse(
+            access_token=access_token,
+            user={
+                "id": str(user.id),
+                "email": user.email,
+                "display_name": user.display_name,
+                "tier": user.tier,
+            }
+        )
         
     except ValueError as e:
         logger.error(f"Invalid Google token: {e}")
