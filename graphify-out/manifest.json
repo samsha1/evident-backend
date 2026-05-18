@@ -1,0 +1,357 @@
+{
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_auth.py": {
+    "mtime": 1778770783.207255,
+    "ast_hash": "62654f6f552f8983a900219c7fa1f1b2",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_sentiment.py": {
+    "mtime": 1778578940.9098601,
+    "ast_hash": "eaacc239a4baf8308c2d39845384d77b",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_reddit_crawler.py": {
+    "mtime": 1778580889.125726,
+    "ast_hash": "c7d801602868d5abcc8ebd6c77251f14",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_rate_limiter.py": {
+    "mtime": 1778580949.9263911,
+    "ast_hash": "e395b49c8cb63d4e1c334bff7466076f",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_health.py": {
+    "mtime": 1778580874.0065458,
+    "ast_hash": "8d518ac82f2fec28cd98665e8b98e603",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_amazon_crawler.py": {
+    "mtime": 1778578933.5919764,
+    "ast_hash": "6f508aa4a831688011ca5714ebc920dd",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/tests/test_youtube_crawler.py": {
+    "mtime": 1778578926.8717146,
+    "ast_hash": "528bf49acd2b5ea4fd707ace358159c3",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/__init__.py": {
+    "mtime": 1778427774.9851925,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/verdict.py": {
+    "mtime": 1778578918.4069798,
+    "ast_hash": "a318746daf37ce7738f61b6c95a71595",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/youtube.py": {
+    "mtime": 1778345273.9264922,
+    "ast_hash": "659456f61ee219fc820e772f229fea78",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/__init__.py": {
+    "mtime": 1778518963.7022836,
+    "ast_hash": "249c76a37f05b44ca62be9973879e9f6",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/factory.py": {
+    "mtime": 1778579326.4066708,
+    "ast_hash": "05e08fca1a1019a7ca3f1d3891b208e3",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/instagram.py": {
+    "mtime": 1778345273.9268796,
+    "ast_hash": "61756a2449cc2538c0982906aeed0ed0",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/tiktok.py": {
+    "mtime": 1778345273.927168,
+    "ast_hash": "b228578fcaa705b8826d0524b55a6d3e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/reddit.py": {
+    "mtime": 1778345273.9274006,
+    "ast_hash": "cabf2e75474c810e7bf824e1a955a60a",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/base.py": {
+    "mtime": 1778345273.9276989,
+    "ast_hash": "afba171bff5b18c478bebe4c21b76b15",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/amazon.py": {
+    "mtime": 1778345273.9280548,
+    "ast_hash": "7e7e7640ab2774ba9c7f58bb6a87280b",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/platforms/youtube.py": {
+    "mtime": 1778578819.8885372,
+    "ast_hash": "5939bce34b7141db25a52c006f2c7ecb",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/platforms/__init__.py": {
+    "mtime": 1778518967.7485082,
+    "ast_hash": "6b5e3d0f4de11b1e59d88c4f72eb9f2e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/platforms/reddit.py": {
+    "mtime": 1778519019.8881767,
+    "ast_hash": "e249e4861313d8977f54cd9ea4d571a0",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/platforms/amazon.py": {
+    "mtime": 1778578848.5691051,
+    "ast_hash": "3ba9e98b52b5683248b4ca6330dad340",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/core/__init__.py": {
+    "mtime": 1778518965.7236567,
+    "ast_hash": "f6ffd19418b7a66a18df0afd36c59992",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/core/base.py": {
+    "mtime": 1778579307.326546,
+    "ast_hash": "3f8df71e33984da4a2ccde288851bae8",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/core/crawler.py": {
+    "mtime": 1778579316.2795756,
+    "ast_hash": "54b2d486ca794a2e65de685a1d61b375",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/strategies/__init__.py": {
+    "mtime": 1778518969.798636,
+    "ast_hash": "bb33d2767fe21527411a1cf4fb1f0f79",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/strategies/api.py": {
+    "mtime": 1778518994.3012156,
+    "ast_hash": "a3bcfdff6e4674f773b555982914a2e2",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/crawlers/strategies/scrape.py": {
+    "mtime": 1778578835.6353254,
+    "ast_hash": "83cf7f9026277a7594741996bd6f81ba",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/sentiment/service.py": {
+    "mtime": 1778578897.866495,
+    "ast_hash": "2d49e1934e7ffb123995efbb613f2cb3",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/sentiment/provider.py": {
+    "mtime": 1778599544.7295403,
+    "ast_hash": "4f13da1f303f7c3fe63cb3ad12fb8298",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/sentiment/fallback.py": {
+    "mtime": 1778578887.6362998,
+    "ast_hash": "d26fde778580d18967ef0d60847c868f",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/pipelines/flows/__init__.py": {
+    "mtime": 1778427774.985336,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/crawl_job.py": {
+    "mtime": 1778345273.9287724,
+    "ast_hash": "34aba3b513f4a5f05a2d0d148082015f",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/product_score.py": {
+    "mtime": 1778345273.9292104,
+    "ast_hash": "8069c2bba170a03e2733b6674d177bb5",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/__init__.py": {
+    "mtime": 1778344165.1601393,
+    "ast_hash": "c560cf9976063625670c56da2154e1fe",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/review.py": {
+    "mtime": 1778345273.9297042,
+    "ast_hash": "58973c12e04c7613d06dd95e136696d9",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/product.py": {
+    "mtime": 1778345273.9300632,
+    "ast_hash": "93719deb8a7788cbbff665772a54fcf0",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/models/base.py": {
+    "mtime": 1778344087.9416168,
+    "ast_hash": "ec2c71eec8b59b0f3d0a8e89a90aa51a",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/schemas/crawl.py": {
+    "mtime": 1778344125.972566,
+    "ast_hash": "5f7633d6a10c84a00671a50d6d2660cc",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/schemas/__init__.py": {
+    "mtime": 1778344050.7715652,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/schemas/review.py": {
+    "mtime": 1778344123.947415,
+    "ast_hash": "7aa5e1e893ee3ed6cc6c7345afde00f8",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/packages/shared/schemas/product.py": {
+    "mtime": 1778344121.9205675,
+    "ast_hash": "ace1872b71282c3186a6eeddc8379cf6",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/alembic/env.py": {
+    "mtime": 1778473920.010719,
+    "ast_hash": "96d551ff8303134fc7ba4c90f84889d8",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/alembic/versions/5e4c216416ba_initial_schema_users_products_reviews_.py": {
+    "mtime": 1778482815.380981,
+    "ast_hash": "bc86c2769b41153c0f7e53093e4b39d9",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/__init__.py": {
+    "mtime": 1778344050.7713103,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/main.py": {
+    "mtime": 1778835868.0915024,
+    "ast_hash": "99a7c0c6ea80abf9e8dd9bd863faf8e3",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/crawl.py": {
+    "mtime": 1778345273.9325757,
+    "ast_hash": "25850e5f458c6cbdf7fa1389464b1530",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/auth.py": {
+    "mtime": 1778839203.7934062,
+    "ast_hash": "ad4ab869e617f537620da7bb70ffce53",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/reviews.py": {
+    "mtime": 1778345273.932887,
+    "ast_hash": "dbfccbc7e23cb0097fc43b7dbf012d5e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/health.py": {
+    "mtime": 1778344136.1163666,
+    "ast_hash": "1b70543353fa6b4fa1b901a1a8ab43fa",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/__init__.py": {
+    "mtime": 1778344050.7713757,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/products.py": {
+    "mtime": 1778751945.7625358,
+    "ast_hash": "a3be9ce8aa70442d394821adc4b6debf",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/routers/product.py": {
+    "mtime": 1778579901.182488,
+    "ast_hash": "5b14b460600798de37255859d12a9722",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/core/config.py": {
+    "mtime": 1778427856.3094714,
+    "ast_hash": "02630336a171280bba0daa6298745a88",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/core/database.py": {
+    "mtime": 1778427866.4624226,
+    "ast_hash": "bc3bc17b1c64e1a90ffc4e893ef32cdb",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/core/security.py": {
+    "mtime": 1778579386.4623847,
+    "ast_hash": "1ab8c992ca518bf4483a96d457eec3b3",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/core/__init__.py": {
+    "mtime": 1778344050.7714388,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/core/redis.py": {
+    "mtime": 1778427873.7099638,
+    "ast_hash": "e9005d01f99ca3e7276bf82948d31849",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/models/models.py": {
+    "mtime": 1778482842.3325112,
+    "ast_hash": "602c06db263fea8d1142b8a14a7540fd",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/models/__init__.py": {
+    "mtime": 1778427809.0533574,
+    "ast_hash": "ba37771ad5cabd68408b1ad50308bb2c",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/models/base.py": {
+    "mtime": 1778427782.115008,
+    "ast_hash": "4fdcda818833714f46f6d128e55e87fd",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/entity_resolver.py": {
+    "mtime": 1778344130.020098,
+    "ast_hash": "3b48c56d63a5a3306b6badd161d411ed",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/rate_limiter.py": {
+    "mtime": 1778579891.758173,
+    "ast_hash": "6a73cb78a9c0791a77a34b0f5bc4190a",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/cache.py": {
+    "mtime": 1778579423.5885894,
+    "ast_hash": "53b1692f3e0c8c9acb4dc1397375ae00",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/__init__.py": {
+    "mtime": 1778344050.771635,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/orchestrator.py": {
+    "mtime": 1778579461.580253,
+    "ast_hash": "141622a48b14d48b7d6d7c75373d4545",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/apps/api/src/services/sentiment/__init__.py": {
+    "mtime": 1778427774.9850154,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/ARCHITECTURE.md": {
+    "mtime": 1778426318.88465,
+    "ast_hash": "71070586148d535b1a68fba65057394c",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/requirements.txt": {
+    "mtime": 1778473900.7094712,
+    "ast_hash": "e984f0709caed8a5152b02d40ef9170a",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/README.md": {
+    "mtime": 1778346806.7479067,
+    "ast_hash": "38eae7caaa09eb6ece14077580e87cc9",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/docker-compose.yml": {
+    "mtime": 1778600801.0637298,
+    "ast_hash": "a8237c5a967a0efc4bef520d0a1dcc21",
+    "semantic_hash": ""
+  },
+  "/Users/samrat/Documents/samrat/projects/evident/evident-backend/IMPLEMENTATION_PLAN.md": {
+    "mtime": 1778426453.3919263,
+    "ast_hash": "44fc2e9db34a11bbb50859b0270e6bbc",
+    "semantic_hash": ""
+  }
+}

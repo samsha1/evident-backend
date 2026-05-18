@@ -1,44 +1,93 @@
+"""
+Crawler factory — assembles platform crawlers from runtime config.
+
+Priority:
+  1. YouTube   — Apify streamers/youtube-scraper  (needs APIFY_TOKEN)
+  2. Reddit    — Apify trudax/reddit-scraper-lite  (needs APIFY_TOKEN)
+  3. Amazon    — custom HTML scraper               (no API key required)
+
+To add a new platform simply import its Strategy/Parser pair and add a
+block following the same pattern below.
+"""
+
+import logging
 from pipelines.crawlers.core.crawler import PlatformCrawler
-from pipelines.crawlers.platforms.reddit import RedditJsonParser, RedditStrategy
-from pipelines.crawlers.platforms.youtube import YouTubeApiParser, YouTubeStrategy
+
+# Apify-backed platforms
+from pipelines.crawlers.platforms.youtube import YouTubeApifyStrategy, YouTubeApifyParser
+from pipelines.crawlers.platforms.reddit import RedditApifyStrategy, RedditApifyParser
+
+# Custom scraper (untouched)
 from pipelines.crawlers.platforms.amazon import AmazonHtmlParser, AmazonStrategy
 
+logger = logging.getLogger(__name__)
+
+
 def build_crawlers(config: dict[str, str]) -> list[PlatformCrawler]:
-    """Build list of crawlers based on configuration dictionary.
-    
+    """Build active crawlers from the supplied configuration dict.
+
     Args:
-        config: Dictionary containing API keys and settings.
+        config: Flat key-value map of environment/settings values.
+                Expected keys:
+                  APIFY_TOKEN        — enables YouTube + Reddit via Apify
+                  (no key needed)    — Amazon always included
+
+    Returns:
+        List of PlatformCrawler instances ready to run concurrently.
     """
-    crawlers = []
-    
-    # Reddit Crawler
-    reddit_client_id = config.get("REDDIT_CLIENT_ID")
-    reddit_client_secret = config.get("REDDIT_CLIENT_SECRET")
-    reddit_user_agent = config.get("REDDIT_USER_AGENT", "EvidentCrawler/0.1")
-    
-    if reddit_client_id and reddit_client_secret:
-        strategy = RedditStrategy(
-            client_id=reddit_client_id,
-            client_secret=reddit_client_secret,
-            user_agent=reddit_user_agent
+    crawlers: list[PlatformCrawler] = []
+    apify_token: str | None = config.get("APIFY_TOKEN")
+
+    # ------------------------------------------------------------------
+    # YouTube  (Apify)
+    # ------------------------------------------------------------------
+    if apify_token:
+        strategy = YouTubeApifyStrategy(api_token=apify_token)
+        parser = YouTubeApifyParser()
+        crawlers.append(
+            PlatformCrawler(
+                source="youtube",
+                strategy=strategy,
+                parser=parser,
+                timeout=300.0,  # Actor can take up to ~3 min
+            )
         )
-        parser = RedditJsonParser()
-        crawler = PlatformCrawler(source="reddit", strategy=strategy, parser=parser)
-        crawlers.append(crawler)
-        
-    # YouTube Crawler
-    youtube_api_key = config.get("YOUTUBE_API_KEY")
-    if youtube_api_key:
-        strategy = YouTubeStrategy(api_key=youtube_api_key)
-        parser = YouTubeApiParser()
-        crawler = PlatformCrawler(source="youtube", strategy=strategy, parser=parser)
-        crawlers.append(crawler)
-        
-    # Amazon Crawler (Scraping, no API key required for now)
+        logger.info("[Factory] YouTube crawler enabled (Apify)")
+    else:
+        logger.warning("[Factory] APIFY_TOKEN not set — YouTube crawler disabled")
+
+    # ------------------------------------------------------------------
+    # Reddit  (Apify)
+    # ------------------------------------------------------------------
+    if apify_token:
+        strategy = RedditApifyStrategy(api_token=apify_token)
+        parser = RedditApifyParser()
+        crawlers.append(
+            PlatformCrawler(
+                source="reddit",
+                strategy=strategy,
+                parser=parser,
+                timeout=120.0,
+            )
+        )
+        logger.info("[Factory] Reddit crawler enabled (Apify)")
+    else:
+        logger.warning("[Factory] APIFY_TOKEN not set — Reddit crawler disabled")
+
+    # ------------------------------------------------------------------
+    # Amazon  (custom HTML scraper — unchanged)
+    # ------------------------------------------------------------------
     strategy = AmazonStrategy()
     parser = AmazonHtmlParser()
-    crawler = PlatformCrawler(source="amazon", strategy=strategy, parser=parser)
-    crawlers.append(crawler)
-        
-    return crawlers
+    crawlers.append(
+        PlatformCrawler(
+            source="amazon",
+            strategy=strategy,
+            parser=parser,
+            timeout=30.0,
+        )
+    )
+    logger.info("[Factory] Amazon crawler enabled (HTML scraper)")
 
+    logger.info(f"[Factory] Total crawlers built: {len(crawlers)}")
+    return crawlers

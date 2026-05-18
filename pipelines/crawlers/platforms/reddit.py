@@ -1,105 +1,157 @@
-from datetime import datetime, timezone
-import json
-import aiohttp
-from pipelines.crawlers.core.base import PlatformParser, RawReview, CrawlStrategy
+"""
+Reddit crawler backed by the Apify `trudax/reddit-scraper-lite` Actor.
 
-class RedditJsonParser(PlatformParser):
-    """Parses Reddit JSON API responses."""
-    
+Actor docs: https://apify.com/trudax/reddit-scraper-lite
+Input reference (relevant fields):
+    searches        - list of search strings
+    type            - "posts" | "comments"
+    maxItems        - total items to retrieve
+    sort            - "relevance" | "top" | "new"
+    time            - "all" | "year" | "month" | "week" | "day"
+    includeComments - whether to include comments in post results
+
+Output items include:
+    id, title, body/selftext, author, created_utc, url, subreddit, score
+    For comment-type: id, body, author, created_utc, url, subreddit
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+from datetime import datetime, timezone
+
+from pipelines.crawlers.core.base import PlatformParser, RawReview
+from pipelines.crawlers.strategies.apify import ApifyStrategy
+
+logger = logging.getLogger(__name__)
+
+# --------------------------------------------------------------------------
+# Apify Actor ID
+# --------------------------------------------------------------------------
+_ACTOR_ID = "trudax/reddit-scraper-lite"
+
+# Limits
+_MAX_ITEMS = 50
+
+
+# --------------------------------------------------------------------------
+# Strategy — builds actor input from the product search query
+# --------------------------------------------------------------------------
+
+class RedditApifyStrategy(ApifyStrategy):
+    """Runs the `trudax/reddit-scraper-lite` Apify Actor."""
+
+    actor_id = _ACTOR_ID
+
+    def __init__(self, api_token: str):
+        # Reddit scraper is generally fast for small item counts
+        super().__init__(api_token=api_token, use_async=False)
+
+    def build_input(self, query: str) -> dict:
+        return {
+            "searches": [query],
+            "type": "posts",
+            "maxItems": _MAX_ITEMS,
+            "sort": "relevance",
+            "time": "all",
+            "includeComments": True,
+        }
+
+
+# --------------------------------------------------------------------------
+# Parser — maps Apify dataset items → RawReview
+# --------------------------------------------------------------------------
+
+class RedditApifyParser(PlatformParser):
+    """
+    Parses `trudax/reddit-scraper-lite` dataset items into RawReview objects.
+
+    Each item represents a Reddit post. When `includeComments=True` the actor
+    nests comment objects inside `item["comments"]`.
+    """
+
     def parse(self, raw_data: str) -> list[RawReview]:
-        """Parse raw JSON string from Reddit into RawReview objects."""
         try:
-            data = json.loads(raw_data)
+            items: list[dict] = json.loads(raw_data)
         except json.JSONDecodeError:
-            print("Failed to decode Reddit JSON")
+            logger.error("[Reddit] Failed to decode Apify response JSON")
             return []
-            
-        reviews = []
-        
-        # Reddit listings usually have data -> children
-        if isinstance(data, dict) and "data" in data and "children" in data["data"]:
-            children = data["data"]["children"]
-            for child in children:
-                item_data = child.get("data", {})
-                
-                # Extract title + selftext for posts, or body for comments
-                content = item_data.get("selftext") or item_data.get("body") or item_data.get("title")
-                if not content:
-                    continue
-                    
-                # If both title and selftext exist, combine them
-                if item_data.get("title") and item_data.get("selftext"):
-                    content = f"{item_data['title']}\n\n{item_data['selftext']}"
-                    
-                source_id = item_data.get("id", "")
-                author = item_data.get("author")
-                
-                created_utc = item_data.get("created_utc")
-                posted_at = None
-                if created_utc:
-                    # Python 3.12 compliant
-                    posted_at = datetime.fromtimestamp(created_utc, tz=timezone.utc)
-                    
+
+        reviews: list[RawReview] = []
+
+        for item in items:
+            post_id = item.get("id") or ""
+            post_url = item.get("url") or ""
+            author = item.get("author") or "Anonymous"
+            subreddit = item.get("subreddit") or ""
+            posted_at = _parse_unix(item.get("created_utc"))
+
+            # --- Post body (selftext or title) ---------------------------
+            body = (item.get("body") or item.get("selftext") or "").strip()
+            title = (item.get("title") or "").strip()
+
+            # Prefer body+title combo; fall back to title-only
+            if body:
+                content = f"{title}\n\n{body}" if title else body
+            elif title:
+                content = title
+            else:
+                content = ""
+
+            if content:
                 reviews.append(
                     RawReview(
                         source="reddit",
-                        source_id=source_id,
+                        source_id=post_id,
                         content=content,
                         author=author,
-                        posted_at=posted_at
+                        posted_at=posted_at,
+                        metadata={
+                            "url": post_url,
+                            "subreddit": subreddit,
+                            "score": str(item.get("score", 0)),
+                        },
                     )
                 )
-                
+
+            # --- Nested comments ------------------------------------------
+            for comment in item.get("comments") or []:
+                c_body = (comment.get("body") or "").strip()
+                if not c_body:
+                    continue
+
+                c_id = comment.get("id") or f"{post_id}_c{len(reviews)}"
+                c_author = comment.get("author") or "Anonymous"
+                c_at = _parse_unix(comment.get("created_utc"))
+
+                reviews.append(
+                    RawReview(
+                        source="reddit",
+                        source_id=c_id,
+                        content=c_body,
+                        author=c_author,
+                        posted_at=c_at,
+                        metadata={
+                            "url": post_url,
+                            "subreddit": subreddit,
+                            "parent_post_id": post_id,
+                        },
+                    )
+                )
+
+        logger.info(f"[Reddit] Parsed {len(reviews)} items from {len(items)} posts")
         return reviews
 
-class RedditStrategy(CrawlStrategy):
-    """Strategy for fetching data from Reddit API with OAuth2."""
-    
-    def __init__(self, client_id: str, client_secret: str, user_agent: str):
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.user_agent = user_agent
-        self.token = None
-        
-    async def _get_token(self) -> str:
-        """Get Reddit OAuth2 token."""
-        auth = aiohttp.BasicAuth(self.client_id, self.client_secret)
-        headers = {"User-Agent": self.user_agent}
-        data = {"grant_type": "client_credentials"}
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://www.reddit.com/api/v1/access_token",
-                auth=auth,
-                headers=headers,
-                data=data
-            ) as response:
-                response.raise_for_status()
-                res_data = await response.json()
-                return str(res_data["access_token"])
-                
-    async def fetch(self, query: str, **kwargs: object) -> str:
-        """Fetch data from Reddit search."""
-        if not self.token:
-            self.token = await self._get_token()
-            
-        headers = {
-            "Authorization": f"Bearer {self.token}",
-            "User-Agent": self.user_agent
-        }
-        
-        # Reddit search endpoint
-        url = f"https://oauth.reddit.com/search.json?q={query}&limit=10"
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                if response.status == 401:
-                    # Token might have expired, try once more
-                    self.token = await self._get_token()
-                    headers["Authorization"] = f"Bearer {self.token}"
-                    async with session.get(url, headers=headers) as retry_response:
-                        retry_response.raise_for_status()
-                        return await retry_response.text()
-                
-                response.raise_for_status()
-                return await response.text()
+
+# --------------------------------------------------------------------------
+# Helpers
+# --------------------------------------------------------------------------
+
+def _parse_unix(ts: int | float | None) -> datetime | None:
+    if ts is None:
+        return None
+    try:
+        return datetime.fromtimestamp(float(ts), tz=timezone.utc)
+    except (ValueError, OSError):
+        return None

@@ -42,10 +42,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow Chrome extension and local dev
+# CORS — allow Chrome extension origins and any ecommerce host where the
+# content-script runs.  In production, tighten this to a known list.
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"^chrome-extension://.*|^https?://localhost(:\d+)?$",
+    allow_origin_regex=r"^chrome-extension://.*"
+                       r"|^https?://localhost(:\d+)?$"
+                       r"|^https?://.*\.(amazon|ebay|flipkart|walmart|bestbuy|target|newegg|etsy|shopify)\.(com|co\.uk|de|fr|it|es|ca|com\.au|in|co\.jp)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

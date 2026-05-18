@@ -1,0 +1,213 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "main.py",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": "L1",
+      "id": "main_py",
+      "community": 1,
+      "norm_label": "main.py"
+    },
+    {
+      "label": "lifespan()",
+      "file_type": "code",
+      "source_file": "main.py",
+      "source_location": "L16",
+      "id": "src_main_lifespan",
+      "community": 1,
+      "norm_label": "lifespan()"
+    },
+    {
+      "label": "Application lifespan: startup and shutdown hooks.",
+      "file_type": "rationale",
+      "source_file": "main.py",
+      "source_location": "L17",
+      "id": "src_main_rationale_17",
+      "community": 1,
+      "norm_label": "application lifespan: startup and shutdown hooks."
+    },
+    {
+      "label": "auth.py",
+      "file_type": "code",
+      "source_file": "routers/auth.py",
+      "source_location": "L1",
+      "id": "routers_auth_py",
+      "community": 0,
+      "norm_label": "auth.py"
+    },
+    {
+      "label": "AuthRequest",
+      "file_type": "code",
+      "source_file": "routers/auth.py",
+      "source_location": "L22",
+      "id": "routers_auth_authrequest",
+      "community": 2,
+      "norm_label": "authrequest"
+    },
+    {
+      "label": "BaseModel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "id": "basemodel",
+      "community": 2,
+      "norm_label": "basemodel"
+    },
+    {
+      "label": "AuthResponse",
+      "file_type": "code",
+      "source_file": "routers/auth.py",
+      "source_location": "L25",
+      "id": "routers_auth_authresponse",
+      "community": 0,
+      "norm_label": "authresponse"
+    },
+    {
+      "label": "create_access_token()",
+      "file_type": "code",
+      "source_file": "routers/auth.py",
+      "source_location": "L30",
+      "id": "routers_auth_create_access_token",
+      "community": 0,
+      "norm_label": "create_access_token()"
+    },
+    {
+      "label": "auth_google()",
+      "file_type": "code",
+      "source_file": "routers/auth.py",
+      "source_location": "L41",
+      "id": "routers_auth_auth_google",
+      "community": 0,
+      "norm_label": "auth_google()"
+    },
+    {
+      "label": "Exchange Google ID token for a session JWT.          Verifies the Google token,",
+      "file_type": "rationale",
+      "source_file": "routers/auth.py",
+      "source_location": "L42",
+      "id": "routers_auth_rationale_42",
+      "community": 0,
+      "norm_label": "exchange google id token for a session jwt.          verifies the google token,"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "main_py",
+      "target": "src_main_lifespan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "main.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "src_main_rationale_17",
+      "target": "src_main_lifespan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "routers_auth_py",
+      "target": "routers_auth_authrequest",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "routers_auth_py",
+      "target": "routers_auth_authresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "routers_auth_py",
+      "target": "routers_auth_create_access_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "routers_auth_py",
+      "target": "routers_auth_auth_google",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "routers_auth_authrequest",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "routers_auth_authresponse",
+      "target": "basemodel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "routers_auth_auth_google",
+      "target": "routers_auth_authresponse",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "routers_auth_auth_google",
+      "target": "routers_auth_create_access_token",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "routers/auth.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "routers_auth_rationale_42",
+      "target": "routers_auth_auth_google",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "d447498a14162a559fcb6f13a9e05e121711f91a"
+}

@@ -1,104 +1,147 @@
-from datetime import datetime, timezone
+"""
+YouTube crawler backed by the Apify `streamers/youtube-scraper` Actor.
+
+Actor docs: https://apify.com/streamers/youtube-scraper
+Input reference (relevant fields):
+    searchQuery  - keyword search string
+    maxResults   - max videos to retrieve
+    commentsScrape - whether to scrape comments
+    maxComments  - max comments per video
+
+Output items include:
+    id, title, text (description), commentsCount, comments[].text/authorText/date
+"""
+
+from __future__ import annotations
+
 import json
 import logging
-from pipelines.crawlers.core.base import CrawlStrategy, PlatformParser, RawReview
-import aiohttp
+from datetime import datetime, timezone
+
+from pipelines.crawlers.core.base import PlatformParser, RawReview
+from pipelines.crawlers.strategies.apify import ApifyStrategy
 
 logger = logging.getLogger(__name__)
 
-class YouTubeStrategy(CrawlStrategy):
-    """Strategy for fetching YouTube comments using the Data API v3."""
-    
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.base_url = "https://www.googleapis.com/youtube/v3"
-        
-    async def fetch(self, query: str, **kwargs) -> str:
-        """Fetch comments for videos found by searching the query."""
-        async with aiohttp.ClientSession() as session:
-            # 1. Search for videos
-            search_url = f"{self.base_url}/search"
-            search_params = {
-                "key": self.api_key,
-                "q": query,
-                "part": "snippet",
-                "type": "video",
-                "maxResults": 5,  # Limit for MVP
-            }
-            
-            try:
-                async with session.get(search_url, params=search_params) as resp:
-                    if resp.status != 200:
-                        error_text = await resp.text()
-                        logger.error(f"YouTube search failed: {error_text}")
-                        return json.dumps({"error": "Search failed", "status": resp.status})
-                    
-                    search_data = await resp.json()
-            except Exception as e:
-                logger.error(f"YouTube search exception: {e}")
-                return json.dumps({"error": str(e)})
-                
-            video_ids = [item["id"]["videoId"] for item in search_data.get("items", []) if "videoId" in item.get("id", {})]
-            
-            all_comments = []
-            
-            # 2. Fetch comment threads for each video
-            for video_id in video_ids:
-                comments_url = f"{self.base_url}/commentThreads"
-                comments_params = {
-                    "key": self.api_key,
-                    "part": "snippet",
-                    "videoId": video_id,
-                    "maxResults": 20,
-                }
-                
-                try:
-                    async with session.get(comments_url, params=comments_params) as resp:
-                        if resp.status == 200:
-                            comments_data = await resp.json()
-                            all_comments.extend(comments_data.get("items", []))
-                        else:
-                            logger.warning(f"Failed to fetch comments for video {video_id}: {resp.status}")
-                except Exception as e:
-                    logger.warning(f"Exception fetching comments for video {video_id}: {e}")
-                        
-            return json.dumps({"items": all_comments})
+# --------------------------------------------------------------------------
+# Apify Actor ID
+# --------------------------------------------------------------------------
+_ACTOR_ID = "streamers/youtube-scraper"
 
-class YouTubeApiParser(PlatformParser):
-    """Parser for YouTube commentThreads API response."""
-    
+# Limits — keep costs reasonable for MVP
+_MAX_VIDEOS = 5
+_MAX_COMMENTS_PER_VIDEO = 30
+
+
+# --------------------------------------------------------------------------
+# Strategy — builds actor input from the product search query
+# --------------------------------------------------------------------------
+
+class YouTubeApifyStrategy(ApifyStrategy):
+    """Runs the `streamers/youtube-scraper` Apify Actor."""
+
+    actor_id = _ACTOR_ID
+
+    def __init__(self, api_token: str):
+        # youtube-scraper is typically fast (<2 min for small inputs)
+        super().__init__(api_token=api_token, use_async=False)
+
+    def build_input(self, query: str) -> dict:
+        return {
+            "searchQuery": query,
+            "maxResults": _MAX_VIDEOS,
+            "commentsScrape": True,
+            "maxComments": _MAX_COMMENTS_PER_VIDEO,
+        }
+
+
+# --------------------------------------------------------------------------
+# Parser — maps Apify dataset items → RawReview
+# --------------------------------------------------------------------------
+
+class YouTubeApifyParser(PlatformParser):
+    """
+    Parses `streamers/youtube-scraper` dataset items into RawReview objects.
+
+    Each item may contain:
+      - A video-level 'text' / 'description' (we include it as a review)
+      - A 'comments' list with per-comment data
+    """
+
     def parse(self, raw_data: str) -> list[RawReview]:
         try:
-            data = json.loads(raw_data)
+            items: list[dict] = json.loads(raw_data)
         except json.JSONDecodeError:
-            logger.error("Failed to decode YouTube JSON")
+            logger.error("[YouTube] Failed to decode Apify response JSON")
             return []
-            
-        items = data.get("items", [])
-        reviews = []
-        
+
+        reviews: list[RawReview] = []
+
         for item in items:
-            snippet = item.get("snippet", {}).get("topLevelComment", {}).get("snippet", {})
-            content = snippet.get("textDisplay", "")
-            author = snippet.get("authorDisplayName", "")
-            published_at_str = snippet.get("publishedAt", "")
-            
-            posted_at = None
-            if published_at_str:
-                try:
-                    # YouTube returns ISO 8601 strings
-                    posted_at = datetime.fromisoformat(published_at_str.replace("Z", "+00:00"))
-                except ValueError:
-                    pass
-                    
-            reviews.append(
-                RawReview(
-                    source="youtube",
-                    source_id=item.get("id", ""),
-                    content=content,
-                    author=author,
-                    posted_at=posted_at,
-                )
+            video_id: str = item.get("id") or item.get("videoId") or ""
+            video_url: str = item.get("url") or (
+                f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
             )
-            
+
+            # --- Comments (primary review signals) -----------------------
+            comments: list[dict] = item.get("comments") or []
+            for comment in comments:
+                text = (comment.get("text") or "").strip()
+                if not text:
+                    continue
+
+                author = comment.get("authorText") or comment.get("author") or "Anonymous"
+                comment_id = comment.get("id") or f"{video_id}_{len(reviews)}"
+                posted_at = _parse_yt_date(comment.get("publishedAt") or comment.get("date"))
+
+                reviews.append(
+                    RawReview(
+                        source="youtube",
+                        source_id=comment_id,
+                        content=text,
+                        author=author,
+                        posted_at=posted_at,
+                        metadata={
+                            "video_url": video_url,
+                            "video_id": video_id,
+                            "video_title": item.get("title", ""),
+                        },
+                    )
+                )
+
+            # --- Video description as supplemental context ---------------
+            description = (item.get("text") or item.get("description") or "").strip()
+            if description and len(description) > 50:
+                reviews.append(
+                    RawReview(
+                        source="youtube",
+                        source_id=f"desc_{video_id}",
+                        content=description,
+                        author=item.get("channelName") or "Channel",
+                        posted_at=_parse_yt_date(item.get("date")),
+                        metadata={
+                            "video_url": video_url,
+                            "video_id": video_id,
+                            "video_title": item.get("title", ""),
+                            "type": "description",
+                        },
+                    )
+                )
+
+        logger.info(f"[YouTube] Parsed {len(reviews)} reviews from {len(items)} videos")
         return reviews
+
+
+# --------------------------------------------------------------------------
+# Helpers
+# --------------------------------------------------------------------------
+
+def _parse_yt_date(raw: str | None) -> datetime | None:
+    if not raw:
+        return None
+    for fmt in ("%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(raw, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return None
